@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ShopZone — Login / Register</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Fraunces:wght@700;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root { --accent: #ff4d00; --dark: #0f0f0f; --border: #2a2a2a; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: linear-gradient(135deg, #0f0f0f, #1a1a1a); min-height: 100vh; display: flex; flex-direction: column; }
+    nav { padding: 1.2rem 5%; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 900; color: #fff; cursor: pointer; }
+    .logo span { color: var(--accent); }
+    .back-btn { color: #aaa; background: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; }
+    .back-btn:hover { color: #fff; }
+    .auth-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+    .auth-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 16px; padding: 2.5rem; width: 100%; max-width: 440px; }
+    .tabs { display: flex; gap: 0; margin-bottom: 2rem; background: #111; border-radius: 8px; padding: 4px; }
+    .tab {
+      flex: 1; padding: 0.7rem; text-align: center; cursor: pointer;
+      border-radius: 6px; font-weight: 600; font-size: 0.9rem;
+      color: #666; transition: all 0.3s; border: none; background: none;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .tab.active { background: var(--accent); color: #fff; }
+    .form-section { display: none; }
+    .form-section.active { display: block; }
+    .form-title { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem; }
+    .form-subtitle { color: #666; font-size: 0.88rem; margin-bottom: 1.8rem; }
+    .form-group { margin-bottom: 1.1rem; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    label { display: block; font-size: 0.82rem; font-weight: 600; color: #aaa; margin-bottom: 0.4rem; }
+    input {
+      width: 100%; padding: 0.85rem 1rem;
+      background: #222; border: 1px solid #333;
+      border-radius: 8px; color: #fff; font-size: 0.92rem;
+      font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.3s;
+    }
+    input:focus { border-color: var(--accent); }
+    input::placeholder { color: #555; }
+    .input-hint { font-size: 0.75rem; color: #555; margin-top: 0.3rem; }
+    .form-options { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; font-size: 0.83rem; }
+    .check-label { display: flex; align-items: center; gap: 0.4rem; color: #aaa; cursor: pointer; }
+    .form-link { color: var(--accent); cursor: pointer; background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.83rem; }
+    .form-link:hover { text-decoration: underline; }
+    .btn-submit {
+      width: 100%; padding: 1rem; background: var(--accent); color: #fff;
+      border: none; border-radius: 8px; cursor: pointer;
+      font-size: 1rem; font-weight: 700; font-family: 'DM Sans', sans-serif;
+      transition: all 0.3s; margin-bottom: 1.2rem;
+    }
+    .btn-submit:hover { background: #e04400; transform: translateY(-2px); }
+    .divider { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem; color: #444; font-size: 0.82rem; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #2a2a2a; }
+    .social-row { display: flex; gap: 0.8rem; }
+    .btn-social {
+      flex: 1; padding: 0.75rem;
+      background: #222; color: #fff; border: 1px solid #333;
+      border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600;
+      font-family: 'DM Sans', sans-serif; transition: all 0.3s;
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    }
+    .btn-social:hover { background: #2a2a2a; border-color: #444; }
+    .switch-text { text-align: center; color: #555; font-size: 0.83rem; margin-top: 1.2rem; }
+    .switch-text span { color: var(--accent); cursor: pointer; font-weight: 600; }
+    .switch-text span:hover { text-decoration: underline; }
+    .success-msg { background: rgba(0,200,83,0.1); border: 1px solid rgba(0,200,83,0.3); border-radius: 8px; padding: 1rem; color: #00c853; font-size: 0.88rem; margin-bottom: 1rem; display: none; }
+    .error-msg { background: rgba(255,77,0,0.1); border: 1px solid rgba(255,77,0,0.3); border-radius: 8px; padding: 1rem; color: var(--accent); font-size: 0.88rem; margin-bottom: 1rem; display: none; }
+    .strength-bar { height: 4px; border-radius: 2px; margin-top: 0.5rem; background: #333; overflow: hidden; }
+    .strength-fill { height: 100%; width: 0; border-radius: 2px; transition: all 0.3s; }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="logo" onclick="location.href='index.html'">Shop<span>Zone</span></div>
+  <button class="back-btn" onclick="location.href='index.html'">← Back to Home</button>
+</nav>
+
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login')">Sign In</button>
+      <button class="tab" onclick="switchTab('register')">Register</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="form-section active" id="login-form">
+      <div class="form-title">Welcome back! 👋</div>
+      <div class="form-subtitle">Sign in to your ShopZone account</div>
+      <div class="success-msg" id="login-success">✅ Login successful! Redirecting...</div>
+      <div class="error-msg" id="login-error">❌ Invalid email or password. Try again!</div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="login-email" placeholder="vikisankar2003@gmail.com"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="Enter your password"/>
+      </div>
+      <div class="form-options">
+        <label class="check-label"><input type="checkbox"/> Remember me</label>
+        <button class="form-link">Forgot password?</button>
+      </div>
+      <button class="btn-submit" onclick="handleLogin()">Sign In →</button>
+      <div class="divider">or sign in with</div>
+      <div class="social-row">
+        <button class="btn-social" onclick="socialLogin()">🌐 Google</button>
+        <button class="btn-social" onclick="socialLogin()">📘 Facebook</button>
+      </div>
+      <div class="switch-text">New to ShopZone? <span onclick="switchTab('register')">Create account free</span></div>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="form-section" id="register-form">
+      <div class="form-title">Create Account 🎉</div>
+      <div class="form-subtitle">Join millions of shoppers on ShopZone</div>
+      <div class="success-msg" id="reg-success">✅ Account created! Redirecting to login...</div>
+      <div class="error-msg" id="reg-error">❌ Please fill all fields correctly!</div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" id="reg-fname" placeholder="Vigneshwaran"/>
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" id="reg-lname" placeholder="S"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="reg-email" placeholder="vikisankar2003@gmail.com"/>
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" id="reg-phone" placeholder="+91 9445795393"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="reg-pass" placeholder="Min 8 characters" oninput="checkStrength(this.value)"/>
+        <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+        <div class="input-hint" id="strength-text">Enter a strong password</div>
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" id="reg-confirm" placeholder="Repeat your password"/>
+      </div>
+      <button class="btn-submit" onclick="handleRegister()">Create Account →</button>
+      <div class="divider">or register with</div>
+      <div class="social-row">
+        <button class="btn-social" onclick="socialLogin()">🌐 Google</button>
+        <button class="btn-social" onclick="socialLogin()">📘 Facebook</button>
+      </div>
+      <div class="switch-text">Already have an account? <span onclick="switchTab('login')">Sign in</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (tab==='login'&&i===0)||(tab==='register'&&i===1)));
+    document.getElementById('login-form').classList.toggle('active', tab==='login');
+    document.getElementById('register-form').classList.toggle('active', tab==='register');
+  }
+
+  function handleLogin() {
+    const email = document.getElementById('login-email').value;
+    const pass = document.getElementById('login-pass').value;
+    if (!email || !pass) { showMsg('login-error', true); return; }
+    // Save user session
+    localStorage.setItem('user', JSON.stringify({ name: 'Vigneshwaran', email }));
+    showMsg('login-success', false);
+    setTimeout(() => location.href = 'dashboard.html', 1500);
+  }
+
+  function handleRegister() {
+    const fname = document.getElementById('reg-fname').value;
+    const email = document.getElementById('reg-email').value;
+    const pass = document.getElementById('reg-pass').value;
+    const confirm = document.getElementById('reg-confirm').value;
+    if (!fname || !email || !pass || pass !== confirm) { showMsg('reg-error', true); return; }
+    localStorage.setItem('user', JSON.stringify({ name: fname, email }));
+    showMsg('reg-success', false);
+    setTimeout(() => switchTab('login'), 2000);
+  }
+
+  function showMsg(id, isError) {
+    document.getElementById(id).style.display = 'block';
+    setTimeout(() => document.getElementById(id).style.display = 'none', 3000);
+  }
+
+  function socialLogin() {
+    localStorage.setItem('user', JSON.stringify({ name: 'Vigneshwaran', email: 'vikisankar2003@gmail.com' }));
+    setTimeout(() => location.href = 'dashboard.html', 500);
+  }
+
+  function checkStrength(val) {
+    const fill = document.getElementById('strength-fill');
+    const text = document.getElementById('strength-text');
+    if (val.length === 0) { fill.style.width='0'; fill.style.background=''; text.textContent='Enter a strong password'; return; }
+    if (val.length < 6) { fill.style.width='25%'; fill.style.background='#ff4d00'; text.textContent='Weak password'; }
+    else if (val.length < 10) { fill.style.width='60%'; fill.style.background='#ffb800'; text.textContent='Medium password'; }
+    else { fill.style.width='100%'; fill.style.background='#00c853'; text.textContent='Strong password ✅'; }
+  }
+</script>
+</body>
+</html>
