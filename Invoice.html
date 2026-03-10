@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ShopZone — My Orders</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Fraunces:wght@700;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--bg:#fafaf8;--dark:#0f0f0f;--accent:#ff4d00;--accent2:#ffb800;--card:#fff;--muted:#888;--border:#e8e8e8;--text:#1a1a1a}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
+    nav{background:var(--dark);padding:0 5%;display:flex;justify-content:space-between;align-items:center;height:65px;position:sticky;top:0;z-index:100}
+    .logo{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:900;color:#fff;cursor:pointer}
+    .logo span{color:var(--accent)}
+    .nav-btn{color:#aaa;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.85rem;transition:color 0.3s}
+    .nav-btn:hover{color:#fff}
+    .container{max-width:900px;margin:0 auto;padding:3rem 5%}
+    .page-title{font-family:'Fraunces',serif;font-size:2rem;font-weight:700;margin-bottom:2rem}
+
+    /* ORDER CARD */
+    .orders-list{display:flex;flex-direction:column;gap:1.5rem}
+    .order-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:box-shadow 0.3s}
+    .order-card:hover{box-shadow:0 8px 30px rgba(0,0,0,0.1)}
+    .order-header{padding:1.2rem 1.5rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:0.5rem}
+    .order-id{font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--muted)}
+    .order-id strong{color:var(--text);font-weight:700}
+    .order-status{padding:0.35rem 0.9rem;border-radius:20px;font-size:0.78rem;font-weight:700}
+    .status-confirmed{background:#fff3e0;color:#ff6f00}
+    .status-packed{background:#e8eaf6;color:#3f51b5}
+    .status-shipped{background:#e3f2fd;color:#1976d2}
+    .status-delivered{background:#e8f5e9;color:#2e7d32}
+    .status-cancelled{background:#ffebee;color:#c62828}
+    .order-body{padding:1.5rem}
+    .order-items{display:flex;flex-direction:column;gap:0.8rem;margin-bottom:1.5rem}
+    .order-item{display:flex;gap:1rem;align-items:center}
+    .order-item-img{width:55px;height:55px;border-radius:8px;background:linear-gradient(135deg,#f5f5f5,#eee);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0}
+    .order-item-name{font-weight:600;font-size:0.9rem}
+    .order-item-qty{color:var(--muted);font-size:0.82rem}
+    .order-item-price{font-weight:700;margin-left:auto;color:var(--accent)}
+
+    /* TRACKING */
+    .tracking-bar{margin:1.5rem 0}
+    .tracking-title{font-weight:700;font-size:0.95rem;margin-bottom:1.2rem}
+    .track-steps{display:flex;justify-content:space-between;position:relative;padding:0 1rem}
+    .track-steps::before{content:'';position:absolute;top:18px;left:calc(1rem + 18px);right:calc(1rem + 18px);height:3px;background:var(--border);z-index:0}
+    .track-progress{position:absolute;top:18px;left:calc(1rem + 18px);height:3px;background:var(--accent);z-index:1;transition:width 0.5s}
+    .track-step{display:flex;flex-direction:column;align-items:center;gap:0.5rem;position:relative;z-index:2}
+    .track-dot{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;border:3px solid var(--border);background:#fff;transition:all 0.3s}
+    .track-step.done .track-dot{background:var(--accent);border-color:var(--accent);color:#fff}
+    .track-step.active .track-dot{background:#fff;border-color:var(--accent);box-shadow:0 0 0 4px rgba(255,77,0,0.15)}
+    .track-label{font-size:0.72rem;font-weight:600;color:var(--muted);text-align:center;max-width:70px}
+    .track-step.done .track-label,.track-step.active .track-label{color:var(--text)}
+    .track-date{font-size:0.68rem;color:var(--muted);text-align:center}
+
+    /* ORDER FOOTER */
+    .order-footer{padding:1rem 1.5rem;background:#fafaf8;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem}
+    .order-total{font-weight:800;font-size:1rem}
+    .order-total span{color:var(--accent)}
+    .order-actions{display:flex;gap:0.8rem}
+    .btn-action{padding:0.5rem 1rem;border-radius:7px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;transition:all 0.3s}
+    .btn-invoice{background:var(--dark);color:#fff;border:none}
+    .btn-invoice:hover{background:var(--accent)}
+    .btn-cancel{background:none;color:#ff4d4d;border:1px solid #ff4d4d}
+    .btn-cancel:hover{background:#ffebee}
+    .btn-reorder{background:var(--accent);color:#fff;border:none}
+    .btn-reorder:hover{background:#e04400}
+
+    /* EMPTY */
+    .empty-orders{text-align:center;padding:5rem 2rem;background:var(--card);border-radius:14px;border:1px solid var(--border)}
+    .empty-icon{font-size:5rem;margin-bottom:1rem}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:2rem;right:2rem;z-index:999;background:var(--dark);color:#fff;padding:1rem 1.5rem;border-radius:10px;font-size:0.9rem;font-weight:600;transform:translateY(100px);opacity:0;transition:all 0.4s;box-shadow:0 10px 30px rgba(0,0,0,0.3)}
+    .toast.show{transform:translateY(0);opacity:1}
+  </style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<nav>
+  <div class="logo" onclick="location.href='index.html'">Shop<span>Zone</span></div>
+  <div style="display:flex;gap:1rem">
+    <button class="nav-btn" onclick="location.href='dashboard.html'">👤 Dashboard</button>
+    <button class="nav-btn" onclick="location.href='index.html'">🛍️ Shop</button>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-title">📦 My Orders</div>
+  <div id="orders-container"></div>
+</div>
+
+<script>
+  const statusList = ['Confirmed','Packed','Shipped','Out for Delivery','Delivered'];
+  const statusIcons = ['✅','📦','🚚','🛵','🏠'];
+  const statusDates = ['Today','Tomorrow','In 2 days','In 3 days','In 4-5 days'];
+
+  function getStatusClass(s) {
+    const map = {'Confirmed':'status-confirmed','Packed':'status-packed','Shipped':'status-shipped','Delivered':'status-delivered','Cancelled':'status-cancelled'};
+    return map[s] || 'status-confirmed';
+  }
+
+  function renderOrders() {
+    // Add sample orders if none exist
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    if (orders.length === 0) {
+      orders = [
+        { id:'SZ1709001', date:'10 Mar 2025', items:[{emoji:'📱',name:'iPhone 15 Pro Max',qty:1,price:'₹1,29,999'}], total:'₹1,22,999', status:'Shipped', address:'Kanchipuram, Tamil Nadu' },
+        { id:'SZ1709002', date:'08 Mar 2025', items:[{emoji:'👟',name:'Nike Air Max 2024',qty:2,price:'₹8,499'},{emoji:'🎧',name:'Sony WH-1000XM5',qty:1,price:'₹24,990'}], total:'₹39,988', status:'Delivered', address:'Kanchipuram, Tamil Nadu' },
+        { id:'SZ1709003', date:'05 Mar 2025', items:[{emoji:'💻',name:'MacBook Air M3',qty:1,price:'₹1,14,900'}], total:'₹1,09,900', status:'Confirmed', address:'Kanchipuram, Tamil Nadu' }
+      ];
+      localStorage.setItem('orders', JSON.stringify(orders));
+    }
+
+    const container = document.getElementById('orders-container');
+    if (orders.length === 0) {
+      container.innerHTML = `<div class="empty-orders"><div class="empty-icon">📭</div><h2>No orders yet!</h2><p style="color:var(--muted);margin:0.5rem 0 2rem">Start shopping and your orders will appear here</p><button onclick="location.href='index.html'" style="background:var(--accent);color:#fff;padding:0.9rem 2rem;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-family:'DM Sans',sans-serif">Shop Now →</button></div>`;
+      return;
+    }
+
+    container.innerHTML = `<div class="orders-list">${orders.map(order => {
+      const statusIdx = statusList.indexOf(order.status);
+      const progressPct = statusIdx >= 0 ? (statusIdx / (statusList.length - 1)) * 100 : 0;
+      return `
+      <div class="order-card">
+        <div class="order-header">
+          <div>
+            <div class="order-id">Order ID: <strong>#${order.id}</strong></div>
+            <div class="order-id">Placed on: <strong>${order.date}</strong></div>
+          </div>
+          <span class="order-status ${getStatusClass(order.status)}">${order.status}</span>
+        </div>
+        <div class="order-body">
+          <div class="order-items">
+            ${order.items.map(item => `
+              <div class="order-item">
+                <div class="order-item-img">${item.emoji}</div>
+                <div>
+                  <div class="order-item-name">${item.name}</div>
+                  <div class="order-item-qty">Qty: ${item.qty}</div>
+                </div>
+                <div class="order-item-price">${item.price}</div>
+              </div>`).join('')}
+          </div>
+          ${order.status !== 'Cancelled' ? `
+          <div class="tracking-bar">
+            <div class="tracking-title">📍 Order Tracking</div>
+            <div class="track-steps">
+              <div class="track-progress" style="width:${progressPct}%"></div>
+              ${statusList.map((s, i) => `
+                <div class="track-step ${i < statusIdx ? 'done' : i === statusIdx ? 'active' : ''}">
+                  <div class="track-dot">${statusIcons[i]}</div>
+                  <div class="track-label">${s}</div>
+                  <div class="track-date">${i <= statusIdx ? statusDates[i] : ''}</div>
+                </div>`).join('')}
+            </div>
+          </div>` : '<div style="color:#ff4d4d;font-weight:600;padding:1rem 0">❌ This order was cancelled</div>'}
+          <div style="font-size:0.82rem;color:var(--muted);margin-top:0.5rem">📍 Delivering to: ${order.address}</div>
+        </div>
+        <div class="order-footer">
+          <div class="order-total">Total: <span>${order.total}</span></div>
+          <div class="order-actions">
+            <button class="btn-action btn-invoice" onclick="location.href='invoice.html?id=${order.id}'">🧾 Invoice</button>
+            ${order.status === 'Delivered' ? `<button class="btn-action btn-reorder" onclick="showToast('🛒 Items added to cart!')">🔄 Reorder</button>` : ''}
+            ${order.status === 'Confirmed' ? `<button class="btn-action btn-cancel" onclick="cancelOrder('${order.id}')">✕ Cancel</button>` : ''}
+          </div>
+        </div>
+      </div>`}).join('')}</div>`;
+  }
+
+  function cancelOrder(id) {
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders = orders.map(o => o.id === id ? {...o, status: 'Cancelled'} : o);
+    localStorage.setItem('orders', JSON.stringify(orders));
+    renderOrders();
+    showToast('❌ Order cancelled successfully');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  renderOrders();
+</script>
+</body>
+</html>
