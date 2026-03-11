@@ -1,0 +1,45 @@
+name: Deploy ShopZone to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/shopzone:latest .
+
+      - name: Push to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/shopzone:latest
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          password: ${{ secrets.EC2_PASSWORD }}
+          script: |
+            docker pull ${{ secrets.DOCKER_USERNAME }}/shopzone:latest
+            docker stop shopzone || true
+            docker rm shopzone || true
+            docker run -d \
+              --name shopzone \
+              -p 80:80 \
+              --restart always \
+              ${{ secrets.DOCKER_USERNAME }}/shopzone:latest
+            echo "✅ ShopZone Deployed Successfully!"
